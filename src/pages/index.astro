@@ -1,0 +1,91 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { Image } from "astro:assets";
+import jouni_pic from "../images/jouni.jpg";
+import darkmodeswitvh from "../icons/DarkModeSwitch.astro";
+import GitHubLogo from "../icons/GitHubLogo.astro";
+import RedditLogo from "../icons/RedditLogo.astro";
+import XLogo from "../icons/XLogo.astro";
+import LinkedInLogo from "../icons/LinkedInLogo.astro";
+import StackOverFlowLogo from "../icons/StackOverFlowLogo.astro";
+---
+
+<Layout title="Jouni Lammi - jolammi.me">
+  <main class="mx-auto max-w-screen-lg">
+    <div class="pt-8 container relative mx-auto w-1/2 md:w-1/3">
+      <Image
+        class="rounded-full hover:scale-110 transition duration-500 cursor-pointer"
+        src={jouni_pic}
+        alt="An headshot of Jouni Lammi"
+      />
+    </div>
+    <h1 class="px-3 text-2xl text-stone-100 leading-relaxed">Hello there!</h1>
+    <div class="px-3 text-stone-100 text-base leading-relaxed">
+      <p class="my-2">My name is Jouni Lammi.</p>
+      <ul class="list-outside list-disc space-y-5 mb-8">
+        <li class="mx-5">I work as a Python developer at Nokia.</li>
+        <li class="mx-5">
+          My main stack at work is Linux, Python (pure Python, Django and API
+          libraries such as Elasticsearch and Redis), Docker (and compose),
+          Elastic stack, Apache Kafka, Redis and GitLab CI.
+        </li>
+        <li class="mx-5">
+          I especially like (backend) web development, and wish to continue
+          doing it in the future. Full-stack would be nice.
+        </li>
+        <li class="mx-5">
+          I'm always eager to learn more about software development.
+          Currently on my to-learn list:
+        </li>
+        <li class="mx-10">
+          Deepening my knowledge on Apache Kafka, React and Node.js
+        </li>
+        <li class="mx-10">Learning more frontend stuff such as Next.js</li>
+        <li class="mx-10">
+          Learning Golang, Kubernetes, Terraform and cloud providers, especially
+          AWS
+        </li>
+        <li class="mx-10">
+          ...And finishing the hardest side project of all time, my Master's
+          thesis 😬
+        </li>
+        <p class="">
+          Outside of IT, I'm an avid climber and I love all kinds of racket
+          sports!
+        </p>
+      </ul>
+
+      <h2 class="text-l my-2">
+        You can find me as @jolammi on most platforms:
+      </h2>
+
+      <ul class="flex flex-row space-x-4">
+        <li class="h-8 w-8">
+          <a href="https://github.com/jolammi" class="fill-white">
+            <GitHubLogo />
+          </a>
+        </li>
+        <li class="h-8 w-8">
+          <a href="https://www.linkedin.com/in/jolammi/">
+            <LinkedInLogo />
+          </a>
+        </li>
+        <li class="h-8 w-8">
+          <a href="https://stackoverflow.com/users/9810067/jolammi">
+            <StackOverFlowLogo />
+          </a>
+        </li>
+        <li class="h-8 w-8">
+          <a href="https://x.com/jolammi" class="fill-white">
+            <XLogo />
+          </a>
+        </li>
+        <li class="h-8 w-8">
+          <a href="https://www.reddit.com/user/jolammi">
+            <RedditLogo />
+          </a>
+        </li>
+      </ul>
+    </div>
+  </main>
+</Layout>

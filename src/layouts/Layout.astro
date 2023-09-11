@@ -1,0 +1,36 @@
+---
+import Footer from '../components/Footer.astro'
+import Navbar from '../components/Navbar.astro'
+interface Props {
+	title: string;
+}
+
+
+const { title } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en" class="mx-auto min-h-screen bg-gradient-to-b from-minsk-950 via-10% to-slate-900">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content="Hello! My name is Jouni Lammi. I am a software developer."/>
+		<meta name="keywords" content="Jouni Lammi, jolammi.me, jolammi, Jouni, Lammi"/>
+		<meta name="author" content="Jouni Lammi"/>
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" sizes="any" />
+
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+		<link rel="manifest" href="/site.webmanifest" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title}</title>
+	</head>
+	<body>
+		<Navbar/>
+		<slot />
+		<Footer>
+			Crafted with ❤️ using <a href="https://astro.build" class="text-minsk-400 hover:text-minsk-500">Astro</a> and <a href="https://tailwindcss.com/" class="text-minsk-400 hover:text-minsk-500">Tailwind CSS</a>.
+		</Footer>
+	</body>
+</html>
+
