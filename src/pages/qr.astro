@@ -1,0 +1,198 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Link QR code generator" description="Link QR code generator">
+  <main class="mx-auto max-w-screen-lg px-3 py-8 text-stone-100">
+    <div class="max-w-2xl">
+      <h1 class="text-2xl leading-relaxed">Link QR code generator</h1>
+
+      <div class="mt-3 rounded-xl border border-minsk-700 bg-minsk-900/40 p-4 text-sm leading-relaxed">
+        <p class="font-medium">Instructions</p>
+        <ol class="mt-2 list-decimal space-y-1 pl-5">
+          <li>Paste a full link, including <span class="font-mono">https://</span>.</li>
+          <li>Click <span class="font-medium">Generate QR code</span>.</li>
+          <li>Click <span class="font-medium">Copy QR image</span> to copy the PNG to your clipboard.</li>
+        </ol>
+      </div>
+
+      <form data-qr-form class="mt-6 space-y-4">
+        <div>
+          <label for="qr-url" class="mb-2 block text-sm font-medium">
+            Link
+          </label>
+          <input
+            id="qr-url"
+            name="url"
+            type="url"
+            inputmode="url"
+            autocomplete="url"
+            placeholder="https://example.com"
+            required
+            class="block w-full rounded-xl border border-minsk-600 bg-minsk-950/80 px-4 py-3 text-sm text-stone-100 outline-none transition placeholder:text-stone-400 focus:border-minsk-400"
+          />
+          <p class="mt-2 text-xs text-stone-400">
+            Only <span class="font-mono">http://</span> and <span class="font-mono">https://</span> links are accepted.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+          <button
+            type="submit"
+            class="rounded-xl border border-minsk-500 bg-minsk-700 px-4 py-3 text-sm font-medium text-white transition hover:bg-minsk-600"
+          >
+            Generate QR code
+          </button>
+
+          <button
+            type="button"
+            data-copy-button
+            disabled
+            class="rounded-xl border border-minsk-600 bg-minsk-950/50 px-4 py-3 text-sm font-medium text-stone-100 transition hover:bg-minsk-900 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Copy QR image
+          </button>
+        </div>
+      </form>
+
+      <p data-status aria-live="polite" class="mt-4 text-sm text-stone-300">
+        No QR code generated yet.
+      </p>
+
+      <div class="mt-6 rounded-2xl border border-dashed border-minsk-700 bg-minsk-900/30 p-6">
+        <div class="flex min-h-[352px] flex-col items-center justify-center gap-4">
+          <p data-empty-state class="text-sm text-stone-400">
+            The generated QR code will appear here.
+          </p>
+
+          <canvas
+            data-qr-canvas
+            width="320"
+            height="320"
+            class="hidden max-w-full rounded-xl bg-white p-2 shadow-2xl shadow-minsk-950/40"
+            aria-label="Generated QR code"
+          ></canvas>
+
+          <p data-generated-link class="hidden max-w-full text-center text-sm text-stone-300">
+            <span class="text-stone-400">Link: </span>
+            <span data-generated-link-value class="break-all font-mono"></span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    import QRCode from "qrcode";
+
+    const form = document.querySelector('[data-qr-form]');
+    const input = document.getElementById('qr-url');
+    const canvas = document.querySelector('[data-qr-canvas]');
+    const copyButton = document.querySelector('[data-copy-button]');
+    const status = document.querySelector('[data-status]');
+    const emptyState = document.querySelector('[data-empty-state]');
+    const generatedLink = document.querySelector('[data-generated-link]');
+    const generatedLinkValue = document.querySelector('[data-generated-link-value]');
+
+    if (
+      !(form instanceof HTMLFormElement) ||
+      !(input instanceof HTMLInputElement) ||
+      !(canvas instanceof HTMLCanvasElement) ||
+      !(copyButton instanceof HTMLButtonElement) ||
+      !(status instanceof HTMLElement) ||
+      !(emptyState instanceof HTMLElement) ||
+      !(generatedLink instanceof HTMLElement) ||
+      !(generatedLinkValue instanceof HTMLElement)
+    ) {
+      throw new Error('QR generator elements were not found.');
+    }
+
+    const setStatus = (message: string) => {
+      status.textContent = message;
+    };
+
+    const isSupportedLink = (value: string) => {
+      try {
+        const url = new URL(value);
+        return url.protocol === 'http:' || url.protocol === 'https:';
+      } catch {
+        return false;
+      }
+    };
+
+    const canvasToBlob = (target: HTMLCanvasElement) =>
+      new Promise<Blob>((resolve, reject) => {
+        target.toBlob((blob) => {
+          if (blob) {
+            resolve(blob);
+            return;
+          }
+
+          reject(new Error('Failed to convert canvas to PNG.'));
+        }, 'image/png');
+      });
+
+    const renderQrCode = async (value: string) => {
+      await QRCode.toCanvas(canvas, value, {
+        errorCorrectionLevel: 'M',
+        margin: 2,
+        width: 320,
+      });
+
+      canvas.classList.remove('hidden');
+      emptyState.classList.add('hidden');
+      generatedLinkValue.textContent = value;
+      generatedLink.classList.remove('hidden');
+      copyButton.disabled = false;
+    };
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const value = input.value.trim();
+
+      if (!value) {
+        input.reportValidity();
+        return;
+      }
+
+      if (!isSupportedLink(value)) {
+        input.setCustomValidity('Enter a valid http or https URL.');
+        input.reportValidity();
+        input.setCustomValidity('');
+        setStatus('Invalid link. Use a full http or https URL.');
+        return;
+      }
+
+      try {
+        copyButton.disabled = true;
+        setStatus('Generating QR code...');
+        await renderQrCode(value);
+        setStatus('QR code generated.');
+      } catch (error) {
+        console.error(error);
+        setStatus('Failed to generate QR code.');
+      }
+    });
+
+    copyButton.addEventListener('click', async () => {
+      if (!navigator.clipboard?.write || typeof ClipboardItem === 'undefined') {
+        setStatus('Image copy is not supported in this browser or context.');
+        return;
+      }
+
+      try {
+        const blob = await canvasToBlob(canvas);
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            'image/png': blob,
+          }),
+        ]);
+        setStatus('✅ QR code copied to clipboard.');
+      } catch (error) {
+        console.error(error);
+        setStatus('Failed to copy QR code image.');
+      }
+    });
+  </script>
+</Layout>
