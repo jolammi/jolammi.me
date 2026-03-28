@@ -12,12 +12,38 @@ import StackOverFlowLogo from "../icons/StackOverFlowLogo.astro";
 
 <Layout title="Jouni Lammi - jolammi.me" description="Hello! My name is Jouni Lammi. I am a software developer.">
   <main class="mx-auto max-w-screen-lg">
-    <div class="pt-8 container relative mx-auto w-1/2 md:w-1/3">
-      <Image
-        class="rounded-full hover:scale-110 transition duration-500 cursor-pointer"
-        src={jouni_pic}
-        alt="An headshot of Jouni Lammi"
-      />
+    <div class="container relative mx-auto w-1/2 pt-8 md:w-1/3">
+      <button
+        type="button"
+        data-profile-flip
+        class="group block w-full cursor-pointer rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-minsk-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+        aria-pressed="false"
+        aria-label="Flip profile picture"
+      >
+        <span class="block [perspective:1200px]">
+          <span
+            data-profile-flip-inner
+            class="relative block aspect-square w-full rounded-full transition duration-700 [transform-style:preserve-3d]"
+          >
+            <span class="block rounded-full [backface-visibility:hidden]">
+              <Image
+                class="rounded-full hover:scale-110 transition duration-500"
+                src={jouni_pic}
+                alt="A headshot of Jouni Lammi"
+                sizes="(min-width: 768px) 33vw, 50vw"
+                width={640}
+                height={640}
+                loading="eager"
+                fetchpriority="high"
+              />
+            </span>
+
+            <span class="absolute inset-0 flex items-center justify-center rounded-full border border-minsk-500 bg-minsk-800 px-8 text-center text-sm font-medium text-stone-100 [backface-visibility:hidden] [transform:rotateY(180deg)] md:text-base">
+              I knew you'd try it
+            </span>
+          </span>
+        </span>
+      </button>
     </div>
     <h1 class="px-3 text-2xl text-stone-100 leading-relaxed">Hello there!</h1>
     <div class="px-3 text-stone-100 text-base leading-relaxed">
@@ -63,4 +89,22 @@ import StackOverFlowLogo from "../icons/StackOverFlowLogo.astro";
       </ul>
     </div>
   </main>
+
+  <script>
+    const profileFlip = document.querySelector('[data-profile-flip]');
+    const profileFlipInner = document.querySelector('[data-profile-flip-inner]');
+
+    if (
+      !(profileFlip instanceof HTMLButtonElement) ||
+      !(profileFlipInner instanceof HTMLElement)
+    ) {
+      throw new Error('Profile flip elements were not found.');
+    }
+
+    profileFlip.addEventListener('click', () => {
+      const isFlipped = profileFlip.getAttribute('aria-pressed') === 'true';
+      profileFlip.setAttribute('aria-pressed', String(!isFlipped));
+      profileFlipInner.style.transform = isFlipped ? 'rotateY(0deg)' : 'rotateY(180deg)';
+    });
+  </script>
 </Layout>
