@@ -65,13 +65,14 @@ import Layout from "../layouts/Layout.astro";
             The generated QR code will appear here.
           </p>
 
-          <canvas
-            data-qr-canvas
+          <img
+            data-qr-img
             width="320"
             height="320"
             class="hidden max-w-full rounded-xl bg-white p-2 shadow-2xl shadow-minsk-950/40"
             aria-label="Generated QR code"
-          ></canvas>
+            alt="Generated QR code"
+          />
 
           <p data-generated-link class="hidden max-w-full text-center text-sm text-stone-300">
             <span class="text-stone-400">Link: </span>
@@ -87,7 +88,7 @@ import Layout from "../layouts/Layout.astro";
 
     const form = document.querySelector('[data-qr-form]');
     const input = document.getElementById('qr-url');
-    const canvas = document.querySelector('[data-qr-canvas]');
+    const img = document.querySelector('[data-qr-img]');
     const copyButton = document.querySelector('[data-copy-button]');
     const status = document.querySelector('[data-status]');
     const emptyState = document.querySelector('[data-empty-state]');
@@ -97,7 +98,7 @@ import Layout from "../layouts/Layout.astro";
     if (
       !(form instanceof HTMLFormElement) ||
       !(input instanceof HTMLInputElement) ||
-      !(canvas instanceof HTMLCanvasElement) ||
+      !(img instanceof HTMLImageElement) ||
       !(copyButton instanceof HTMLButtonElement) ||
       !(status instanceof HTMLElement) ||
       !(emptyState instanceof HTMLElement) ||
@@ -120,26 +121,20 @@ import Layout from "../layouts/Layout.astro";
       }
     };
 
-    const canvasToBlob = (target: HTMLCanvasElement) =>
-      new Promise<Blob>((resolve, reject) => {
-        target.toBlob((blob) => {
-          if (blob) {
-            resolve(blob);
-            return;
-          }
-
-          reject(new Error('Failed to convert canvas to PNG.'));
-        }, 'image/png');
-      });
+    const dataUrlToBlob = async (dataUrl: string) => {
+      const res = await fetch(dataUrl);
+      return res.blob();
+    };
 
     const renderQrCode = async (value: string) => {
-      await QRCode.toCanvas(canvas, value, {
+      const dataUrl = await QRCode.toDataURL(value, {
         errorCorrectionLevel: 'M',
         margin: 2,
         width: 320,
       });
 
-      canvas.classList.remove('hidden');
+      img.src = dataUrl;
+      img.classList.remove('hidden');
       emptyState.classList.add('hidden');
       generatedLinkValue.textContent = value;
       generatedLink.classList.remove('hidden');
@@ -182,11 +177,10 @@ import Layout from "../layouts/Layout.astro";
       }
 
       try {
-        const blob = await canvasToBlob(canvas);
+        const dataUrl = (img as HTMLImageElement).src;
+        const blob = await dataUrlToBlob(dataUrl);
         await navigator.clipboard.write([
-          new ClipboardItem({
-            'image/png': blob,
-          }),
+          new ClipboardItem({ 'image/png': blob }),
         ]);
         setStatus('✅ QR code copied to clipboard.');
       } catch (error) {
