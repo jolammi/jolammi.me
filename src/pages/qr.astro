@@ -76,7 +76,7 @@ import Layout from "../layouts/Layout.astro";
 
           <p data-generated-link class="hidden max-w-full text-center text-sm text-stone-300">
             <span class="text-stone-400">Link: </span>
-            <span data-generated-link-value class="break-all font-mono"></span>
+            <a data-generated-link-value class="break-all font-mono text-minsk-300" />
           </p>
         </div>
       </div>
@@ -103,7 +103,7 @@ import Layout from "../layouts/Layout.astro";
       !(status instanceof HTMLElement) ||
       !(emptyState instanceof HTMLElement) ||
       !(generatedLink instanceof HTMLElement) ||
-      !(generatedLinkValue instanceof HTMLElement)
+      !(generatedLinkValue instanceof HTMLAnchorElement)
     ) {
       throw new Error('QR generator elements were not found.');
     }
@@ -136,7 +136,10 @@ import Layout from "../layouts/Layout.astro";
       img.src = dataUrl;
       img.classList.remove('hidden');
       emptyState.classList.add('hidden');
+      generatedLinkValue.href = value;
       generatedLinkValue.textContent = value;
+      generatedLinkValue.target = '_blank';
+      generatedLinkValue.rel = 'noopener noreferrer';
       generatedLink.classList.remove('hidden');
       copyButton.disabled = false;
     };
